@@ -1,9 +1,10 @@
 {
-  "name": "marionette-threejs",
+  "name": "marionette-threejsLPLedoux",
   "version": "0.0.4",
-  "homepage": "https://github.com/Stonelinks/marionette-threejs",
+  "homepage": "https://github.com/LPLedoux/marionette-threejs",
   "authors": [
-    "Lucas Doyle <lucas.p.doyle@gmail.com>"
+    "Lucas Doyle <lucas.p.doyle@gmail.com>",
+    "Louis-Philippe Ledoux"
   ],
   "description": "Simple wrappers around three.js components using Backbone.Marionette",
   "main": "marionette-threejs.js",
