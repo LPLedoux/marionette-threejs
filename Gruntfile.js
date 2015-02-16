@@ -145,16 +145,11 @@ module.exports = function(grunt) {
 
   grunt.registerTask('publish', [
     'lint',
-    'build',
-    'docs',
-    'gh-pages'
+    'build'
   ]);
 
   grunt.registerTask('default', [
     'lint',
-    'build',
-    'docs',
-    'connect',
-    'watch'
+    'build'
   ]);
 };

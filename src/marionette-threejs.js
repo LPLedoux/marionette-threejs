@@ -36,6 +36,7 @@
 
   // #Models
   // @include models/Drawable.js
+  // @include models/LineDrawable.js
   // @include models/OrbitControl.js
   // @include models/TransformControl.js
 

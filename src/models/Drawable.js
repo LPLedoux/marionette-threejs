@@ -4,7 +4,8 @@ var Drawable = m3js.Drawable = Backbone.Model.extend({
     texture: '/img/crate.gif',
     geometryType: 'BoxGeometry',
     geometryParams: [200, 200, 200],
-    matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    textureAlreadyLoad: false
   },
 
   _mesh: undefined,
@@ -28,7 +29,12 @@ var Drawable = m3js.Drawable = Backbone.Model.extend({
     };
 
     if (THREE.hasOwnProperty(this.get('geometryType'))) {
-      this._texture = THREE.ImageUtils.loadTexture(this.get('texture'), new THREE.UVMapping(), _loaded);
+      if (this.get('textureAlreadyLoaded') == true) {
+        this._texture = this.get('texture');
+      }
+      else {
+        this._texture = THREE.ImageUtils.loadTexture(this.get('texture'), new THREE.UVMapping(), _loaded);
+      }
       // this._texture.anisotropy = window._renderer.renderer.getMaxAnisotropy();
       this._geometry = construct(THREE[this.get('geometryType')], this.get('geometryParams'));
       this._material = new THREE.MeshLambertMaterial({
