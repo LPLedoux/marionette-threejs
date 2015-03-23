@@ -1,11 +1,11 @@
 var Drawable = m3js.Drawable = Backbone.Model.extend({
 
   defaults: {
-    texture: '/img/crate.gif',
+    type: 'drawable',
     geometryType: 'BoxGeometry',
     geometryParams: [200, 200, 200],
     matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    textureAlreadyLoad: false
+    textureAlreadyLoaded: false
   },
 
   _mesh: undefined,
@@ -29,17 +29,27 @@ var Drawable = m3js.Drawable = Backbone.Model.extend({
     };
 
     if (THREE.hasOwnProperty(this.get('geometryType'))) {
-      if (this.get('textureAlreadyLoaded') == true) {
-        this._texture = this.get('texture');
-      }
-      else {
-        this._texture = THREE.ImageUtils.loadTexture(this.get('texture'), new THREE.UVMapping(), _loaded);
-      }
+      if(this.get('texture'))
+        {
+            if (this.get('textureAlreadyLoaded') == true) {
+              this._texture = this.get('texture');
+            }
+            else {
+              this._texture = THREE.ImageUtils.loadTexture(this.get('texture'), new THREE.UVMapping(), _loaded);
+            }
+            this._material = new THREE.MeshLambertMaterial({
+              side:THREE.DoubleSide,
+              map: this._texture
+            });
+        }
+        else
+        {
+            this._material = new THREE.MeshBasicMaterial();
+            this._material.color.setRGB( 1.0, 0.0, 0.0 );
+            this._material.opacity = 0.6;
+        }
       // this._texture.anisotropy = window._renderer.renderer.getMaxAnisotropy();
       this._geometry = construct(THREE[this.get('geometryType')], this.get('geometryParams'));
-      this._material = new THREE.MeshLambertMaterial({
-        map: this._texture
-      });
 
       this._mesh = new THREE.Mesh(this._geometry, this._material);
     }

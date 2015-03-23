@@ -1,6 +1,7 @@
 var LineDrawable = m3js.LineDrawable = Backbone.Model.extend({
 
   defaults: {
+    type: 'lineDrawable',
     matrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
   },
 

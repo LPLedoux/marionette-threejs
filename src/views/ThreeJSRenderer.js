@@ -10,6 +10,11 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
     // this basically takes the place of the add event
     'drawable:loaded': function(drawable) {
       this.addDrawable(drawable);
+    },
+
+    // this basically takes the place of the add event
+    'lineDrawable:loaded': function(drawable) {
+      this.addDrawable(drawable);
     }
   },
 
@@ -86,11 +91,11 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   },
 
   getWidth: function() {
-    return window.innerWidth - this.$el.find('div').offset().left - 1.0;
+    return this.$el.find('div').offsetParent()[0].clientWidth -1.0;
   },
 
   getHeight: function() {
-    return window.innerHeight - this.$el.find('div').offset().top - 5.25; // why?
+    return this.$el.find('div').offsetParent()[0].clientHeight - 4.5; // WHY?!?!?!? DARK MAGIC
   },
 
   camera: undefined,
