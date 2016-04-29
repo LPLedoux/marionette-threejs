@@ -29,6 +29,7 @@
 
   // #Bundle modified threejs controls
   // @include controls/OrbitControls.js
+  // @include controls/TrackballControls.js
   // @include controls/TransformControls.js
 
   // #General utilities
@@ -38,6 +39,7 @@
   // @include models/Drawable.js
   // @include models/LineDrawable.js
   // @include models/OrbitControl.js
+  // @include models/TrackballControl.js
   // @include models/TransformControl.js
 
   // #Views

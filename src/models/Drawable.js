@@ -29,25 +29,23 @@ var Drawable = m3js.Drawable = Backbone.Model.extend({
     };
 
     if (THREE.hasOwnProperty(this.get('geometryType'))) {
-      if(this.get('texture'))
-        {
-            if (this.get('textureAlreadyLoaded') == true) {
-              this._texture = this.get('texture');
-            }
-            else {
-              this._texture = THREE.ImageUtils.loadTexture(this.get('texture'), new THREE.UVMapping(), _loaded);
-            }
-            this._material = new THREE.MeshLambertMaterial({
-              side:THREE.DoubleSide,
-              map: this._texture
-            });
+      if (this.get('texture')) {
+        if (this.get('textureAlreadyLoaded') == true) {
+          this._texture = this.get('texture');
         }
-        else
-        {
-            this._material = new THREE.MeshBasicMaterial();
-            this._material.color.setRGB( 1.0, 0.0, 0.0 );
-            this._material.opacity = 0.6;
+        else {
+          this._texture = THREE.ImageUtils.loadTexture(this.get('texture'), new THREE.UVMapping(), _loaded);
         }
+        this._material = new THREE.MeshLambertMaterial({
+          side: THREE.DoubleSide,
+          map: this._texture
+        });
+      }
+      else {
+        this._material = new THREE.MeshBasicMaterial();
+        this._material.color.setRGB(1.0, 0.0, 0.0);
+        this._material.opacity = 0.6;
+      }
       // this._texture.anisotropy = window._renderer.renderer.getMaxAnisotropy();
       this._geometry = construct(THREE[this.get('geometryType')], this.get('geometryParams'));
 
@@ -63,8 +61,20 @@ var Drawable = m3js.Drawable = Backbone.Model.extend({
     this._mesh.matrix.decompose(this._mesh.position, this._mesh.quaternion, this._mesh.scale);
   },
 
+  getGeometry: function() {
+    return this._geometry;
+  },
+
+  getMaterial: function() {
+    return this._material;
+  },
+
   getMesh: function() {
     return this._mesh;
+  },
+
+  getTexture: function() {
+    return this._texture;
   },
 
   initialize: function(options) {

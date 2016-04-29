@@ -1,5 +1,5 @@
 var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
-
+  self: this,
   template: _.template('<div></div>'),
 
   collectionEvents: {
@@ -22,6 +22,44 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
 
   onPointerDown: function(e) {
     this.dispatchDOMEventToControls(e);
+    
+    if (!this._transformControlDragging) {
+      var searchList = [];
+      this.collection.forEach(function(model) {
+        var baseMesh = model.getMesh();
+        if (baseMesh) {
+          var meshes = [];
+          baseMesh.traverse(function(mesh) {
+            if (mesh) {
+              meshes.push(mesh);
+            }
+          });
+          meshes.forEach(function(mesh) {
+            searchList.push({
+              drawable: model,
+              mesh: mesh
+            });
+          });
+        }
+      });
+
+      this._raycast({
+        event: e,
+        callback: function(intersections) {
+
+          var raycastedDrawable;
+          if (intersections[0]) {
+            raycastedDrawable = _.findWhere(searchList, {
+              mesh: intersections[0].object
+            }).drawable;
+          }
+
+          if (raycastedDrawable) {
+            this.triggerMethod('drawable:pointerDown', raycastedDrawable);
+          }
+        }
+      });
+    }
   },
 
   onPointerHover: function(e) {
@@ -75,7 +113,9 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   },
 
   onDrawablePointerUp: function(drawable) {
-    this.transformControl.attachDrawable(drawable);
+    if (this._autoAttachTransformControl) {
+      this.transformControl.attachDrawable(drawable);
+    }
   },
 
   onMouseWheel: function(e) {
@@ -91,7 +131,7 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   },
 
   getWidth: function() {
-    return this.$el.find('div').offsetParent()[0].clientWidth -1.0;
+    return this.$el.find('div').offsetParent()[0].clientWidth - 1.0;
   },
 
   getHeight: function() {
@@ -123,18 +163,19 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   setupCamera: function() {
     this.camera = new THREE.PerspectiveCamera(70, this.getWidth() / this.getHeight(), 0.01, 10000.0);
     this.camera.position.set(1000, 500, 1000);
-    this.camera.lookAt(new THREE.Vector3(0, 200, 0));
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
   },
 
   setupScene: function() {
     this.scene = new THREE.Scene();
 
-    var grid = new THREE.GridHelper(1000, 100);
+    /*var grid = new THREE.GridHelper(1000, 100);
     grid.setColors(0x444444, 0x888888);
-    this.scene.add(grid);
+    this.scene.add(grid);*/
 
-    var light = new THREE.HemisphereLight(0xFFFFFF, 0x645943);
-    light.position.set(0, 50.0, 0);
+    var light = new THREE.HemisphereLight(0xFFFFFF, 0xFFFFFF);
+    //var light = new THREE.HemisphereLight(0xFFFFFF, 0x645943);
+    //light.position.set(0, 50.0, 0);
     this.scene.add(light);
   },
 
@@ -151,8 +192,22 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
     console.log('ThreeJSRenderer: remove drawable');
 
     var mesh = drawable.getMesh();
+    var geometry = drawable.getGeometry();
+    var material;
+    var texture;
     if (mesh) {
       this.scene.remove(mesh);
+
+      //mesh.dispose(); // USE FOR POST r68 THREEJS
+      if (geometry) {
+        geometry.dispose();
+      }
+      if (material) {
+        material.dispose();
+      }
+      if (texture) {
+        texture.dispose();
+      }
     }
   },
 
@@ -207,7 +262,7 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
     var y = (e.clientY - rect.top) / rect.height;
     this.pointerVector.set((x) * 2.0 - 1.0, -(y) * 2.0 + 1.0, 0.5);
 
-    this.projector.unprojectVector(this.pointerVector, this.camera);
+    this.pointerVector.unproject(this.camera);
     this.rayCaster.set(this.camera.position, this.pointerVector.sub(this.camera.position).normalize());
 
     var intersections = this.rayCaster.intersectObjects(meshes, true);
@@ -216,7 +271,9 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   },
 
   transformControl: undefined,
+  _autoAttachTransformControl: true,
   orbitControl: undefined,
+  trackballControl: undefined,
 
   setupTransformControl: function() {
 
@@ -251,6 +308,42 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   disableOrbitControl: function() {
     if (this.orbitControl && this.orbitControl.isEnabled()) {
       this.orbitControl.disable();
+    }
+  },
+
+  setupTrackballControl: function(options) {
+
+    // reuse the same orbitControl instance
+    if (!this.trackballControl) {
+      this.trackballControl = new TrackballControl({
+        renderer: this
+      });
+    }
+    else {
+      this.trackballControl.enable();
+    }
+    
+    if (options.noRotate != undefined && options.noRotate) {
+      this.trackballControl._control.noRotate = true;
+    }
+    
+    if (options.noZoom != undefined && options.noZoom) {
+      this.trackballControl._control.noZoom = true;
+    }
+    
+    if (options.noPan != undefined && options.noPan) {
+      this.trackballControl._control.noPan = true;
+    }
+    
+    if (options.noRoll != undefined && options.noRoll) {
+      this.trackballControl._control.noRoll = true;
+    }
+    
+  },
+
+  disableTrackballControl: function() {
+    if (this.trackballControl && this.trackballControl.isEnabled()) {
+      this.trackballControl.disable();
     }
   },
 
@@ -290,7 +383,8 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
 
     // only dispatch to orbit control if not intersecting transform control
     if (!this.transformControl.intersectsControl(e)) {
-      this.orbitControl.dispatchDOMEvent(e);
+      //TEST TRACKBALL CONTROL this.orbitControl.dispatchDOMEvent(e);
+      this.trackballControl.dispatchDOMEvent(e);
     }
 
     if (this.transformControl) {
@@ -303,6 +397,9 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
   },
 
   initialize: function(options) {
+    if (options.autoAttachTransformControl != undefined) {
+      this._autoAttachTransformControl = options.autoAttachTransformControl;
+    }
     this.once('show', function() {
       this.setupRenderer();
       this.setupCamera();
@@ -311,8 +408,9 @@ var ThreeJSRenderer = m3js.ThreeJSRenderer = Marionette.ItemView.extend({
       this.setupPointerEvents();
 
       this.setupTransformControl();
-      this.setupOrbitControl();
-
+      //TEST TRACKBALL CONTROL this.setupOrbitControl();
+      this.setupTrackballControl(options);
+      
       var _this = this;
       window.addEventListener('resize', function() {
         _this.onWindowResize();

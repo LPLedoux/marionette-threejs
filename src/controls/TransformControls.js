@@ -1082,7 +1082,7 @@
       var y = (pointer.clientY - rect.top) / rect.height;
       pointerVector.set((x) * 2 - 1, -(y) * 2 + 1, 0.5);
 
-      projector.unprojectVector(pointerVector, camera);
+      pointerVector.unproject(camera);
       ray.set(camPosition, pointerVector.sub(camPosition).normalize());
 
       var intersections = ray.intersectObjects(objects, true);

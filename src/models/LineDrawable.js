@@ -41,6 +41,14 @@ var LineDrawable = m3js.LineDrawable = Backbone.Model.extend({
     this._mesh.matrix.decompose(this._mesh.position, this._mesh.quaternion, this._mesh.scale);
   },
 
+  getGeometry: function() {
+    return this._geometry;
+  },
+
+  getMaterial: function() {
+    return this._material;
+  },
+
   getMesh: function() {
     return this._mesh;
   },

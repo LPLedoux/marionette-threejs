@@ -443,7 +443,7 @@ THREE.OrbitControls = function(object, domElement) {
 
   };
 
-  this.onMouseUp = function(/* event */ ) {
+  this.onMouseUp = function( /* event */ ) {
 
     if (scope.enabled === false) return;
 
@@ -647,7 +647,7 @@ THREE.OrbitControls = function(object, domElement) {
 
   };
 
-  this.touchend = function(/* event */ ) {
+  this.touchend = function( /* event */ ) {
 
     if (scope.enabled === false) return;
 

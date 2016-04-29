@@ -71,7 +71,7 @@ var TransformControl = m3js.TransformControl = Backbone.Model.extend({
     drawable = drawable || this.get('attachedDrawable');
     this.set('attachedDrawable', undefined);
     if (drawable) {
-      this._control.disable(drawable.getMesh());
+      this._control.detach(drawable.getMesh());
     }
     else {
       console.log('TransformControl: can\'t detach nonexistant drawable');
